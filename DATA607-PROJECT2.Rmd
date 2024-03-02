@@ -1,0 +1,90 @@
+---
+title: "DATA607-PROJECT2"
+output: html_document
+author: Biyag Dukuray and Rashad Long
+date: "2024-02-24"
+---
+
+```{r setup, include=FALSE}
+
+```
+
+## DATA-607 Project 2
+
+IS 607 – Project 2
+The goal of this assignment is to give you practice in preparing different datasets for downstream
+analysis work.
+Your task is to:
+  (1) Choose any three of the “wide” datasets identified in the Week 6 Discussion items. (You may
+use your own dataset; please don’t use my Sample Post dataset, since that was used in your
+Week 6 assignment!) For each of the three chosen datasets:
+  Create a .CSV file (or optionally, a MySQL database!) that includes all of the information
+included in the dataset. You’re encouraged to use a “wide” structure similar to how the
+information appears in the discussion item, so that you can practice tidying and
+transformations as described below.
+  Read the information from your .CSV file into R, and use tidyr and dplyr as needed to
+tidy and transform your data. [Most of your grade will be based on this step!]
+  Perform the analysis requested in the discussion item.
+  Your code should be in an R Markdown file, posted to rpubs.com, and should include
+narrative descriptions of your data cleanup work, analysis, and conclusions.
+
+**Source: 2021 Fifa player data.**
+**We will begin the tidying of this data set by loading the necessary libraries as well as loading the raw csv file into a data frame. We then store the data in a data frame which we will call fifaplayer_data.**
+
+
+```{r}
+library(tidyverse)
+library(dplyr)
+
+fifaraw_data <- "https://raw.githubusercontent.com/Zcash95/DATA607-Project2/main/fifa21_raw_data.csv"
+
+fifaplayer_data <- read.csv(fifaraw_data, header = TRUE, sep = ",")
+
+
+head(fifaplayer_data)
+```
+
+**We will then continue to remove the columns which are not necessary to perform our analysis. This dataset contains 77 columns which many are added and combined in the total stats column. Because of this we can remove the columns containing individual stats which are not required for our analysis.** 
+
+```{r}
+columns_to_remove <- c(23:63, which(names(fifaplayer_data) %in% c("photoUrl", "playerUrl", "Hits")))
+
+fifaplayer_data1 <- fifaplayer_data %>%
+  select(-columns_to_remove)
+
+print(fifaplayer_data1)
+```
+**We will now analyze this data by taking the total stats of the players and finding the proportion between that and the value of their contracts. Soccer players such as Lionel Messi and Kylian Mbappe have been given exuberant amounts of money in their respective contracts with their teams. Finding the proportion of their total stats to the value of their contracts will give us the insight to determine whether the amount of money in a players contract reflect how well they'll perform.**
+
+```{r}
+fifaplayer_data1$Value <- as.numeric(gsub("[^0-9.]", "", fifaplayer_data1$Value))
+
+fifaplayer_data1$Total.Stats <- as.numeric(fifaplayer_data1$Total.Stats)
+
+fifaplayer_data1$Proportion <- fifaplayer_data1$Total.Stats / fifaplayer_data1$Value
+
+complete_rows <- complete.cases(fifaplayer_data1[, c("Total.Stats", "Value")])
+
+
+
+```
+
+**We first summarize the data and can see that the average total stats of players is a score of 1595. This will help us better gauge a players performance just by taking an initial look at it. We complete this by creating a scatter plot to visualize the value of contracts in comparison with that players stats performance on fifa"**
+
+```{r}
+summary(fifaplayer_data1$`Total.Stats`)
+
+ggplot(fifaplayer_data1[complete_rows,], aes(x = Total.Stats, y = Value)) +
+  geom_point() +
+  labs(title = "Proportion of Total Stats to Contract Value",
+       x = "Total Stats",
+       y = "Contract Value (in millions)")
+
+
+```
+
+
+
+## Conclusion
+
+**What we concluded from the analysis of the dataset is the fifa soccer players who have high contract values tend to have high stats but the opposite is not the case. Players with high stats aren't guaranteed that they will have a high contract value. There are many players who play well but aren't necessarily compensated in comparison to some other players who may have higher contracts than them. Ultimately this lets us know that being a good player isn't the ultimate factor in estimating how much a player will play. Many factors can influence this issue such as the leauges a player played in before joining his team and what exposure he may have had as a teenager before he entered the league. Players who have more exposure and coverage tend to receive bigger contracts such as child prodogies**
