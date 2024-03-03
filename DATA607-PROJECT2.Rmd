@@ -33,6 +33,7 @@ narrative descriptions of your data cleanup work, analysis, and conclusions.
 
 
 ```{r}
+#| warning = FALSE
 library(tidyverse)
 library(dplyr)
 
@@ -52,7 +53,8 @@ columns_to_remove <- c(23:63, which(names(fifaplayer_data) %in% c("photoUrl", "p
 fifaplayer_data1 <- fifaplayer_data %>%
   select(-columns_to_remove)
 
-print(fifaplayer_data1)
+str(fifaplayer_data1)
+head(fifaplayer_data1)
 ```
 **We will now analyze this data by taking the total stats of the players and finding the proportion between that and the value of their contracts. Soccer players such as Lionel Messi and Kylian Mbappe have been given exuberant amounts of money in their respective contracts with their teams. Finding the proportion of their total stats to the value of their contracts will give us the insight to determine whether the amount of money in a players contract reflect how well they'll perform.**
 
